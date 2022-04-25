@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "16079862169",
+    "project_id": "shokher-bari-bd",
+    "storage_bucket": "shokher-bari-bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16079862169:android:28de6023a8ecc0afed3b08",
+        "android_client_info": {
+          "package_name": "com.sofolit.shokher_bari"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "16079862169-h4mr4mfaj4pcnba41pvmeefaicqq7nlc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcE_9JGiIBk2ugvEJ-_5yOwQ4z1O2j4I4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "16079862169-h4mr4mfaj4pcnba41pvmeefaicqq7nlc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
