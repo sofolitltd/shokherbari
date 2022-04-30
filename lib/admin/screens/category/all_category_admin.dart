@@ -27,7 +27,7 @@ class AllCategoryAdmin extends StatelessWidget {
 
       //
       body: StreamBuilder<QuerySnapshot>(
-          stream: MyRepo.refCategories.snapshots(),
+          stream: UserRepo.refCategories.snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return const Center(child: Text('Something wrong'));

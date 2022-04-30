@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:im_stepper/stepper.dart';
-import 'package:shokher_bari/utils/constrains.dart';
+import 'package:shokher_bari/screens/address/components/address_hall.dart';
+import 'package:shokher_bari/screens/address/components/address_home.dart';
 
 import '../../models/address_book.dart';
+import '../../utils/constrains.dart';
 import '../payment/checkout_payment.dart';
 import 'add_address.dart';
 
@@ -26,6 +29,7 @@ class Address extends StatefulWidget {
 
 class _AddressState extends State<Address> {
   String _selectedAddress = '';
+  int _deliveryCharge = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +95,7 @@ class _AddressState extends State<Address> {
                       ),
                     ),
                     Text(
-                      'Order placed',
+                      'Place Order',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.grey.shade500,
@@ -106,300 +110,198 @@ class _AddressState extends State<Address> {
 
           const Divider(),
 
-          // select address
+          //  address
           Expanded(
             child: ListView(
               shrinkWrap: true,
-              padding: const EdgeInsets.all(16),
               children: [
-                const Text('Select Delivery Address'),
+                // address col
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //address title
+                      Text(
+                        'Select Delivery Address',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
 
-                const SizedBox(height: 16),
+                      const Divider(),
 
-                // add new address
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const AddAddress()));
-                  },
-                  icon: const Icon(Icons.add_circle_outline),
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text('Add New Address'),
+                      // address list
+                      StreamBuilder<QuerySnapshot>(
+                          stream: UserRepo.refAddress.snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return const Text('Something wrong');
+                            }
+
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return SizedBox(
+                                  // color: Colors.red,
+                                  height:
+                                      MediaQuery.of(context).size.height * .42,
+                                  child: const Center(
+                                      child: CircularProgressIndicator()));
+                            }
+//
+                            List data = snapshot.data!.docs;
+
+                            //
+                            if (snapshot.data!.size == 0) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // add new address
+                                  OutlinedButton.icon(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const AddAddress()));
+                                    },
+                                    icon: const Icon(Icons.add_circle_outline),
+                                    label: const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 16),
+                                      child: Text('Add New Address'),
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 16),
+
+                                  const Text(
+                                    'No Address found',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              );
+                            }
+
+                            //
+                            if (snapshot.data!.size == 1) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // add new address
+                                  OutlinedButton.icon(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const AddAddress()));
+                                    },
+                                    icon: const Icon(Icons.add_circle_outline),
+                                    label: const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 16),
+                                      child: Text('Add Another Address'),
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 16),
+
+                                  //
+                                  addressCard(data)
+                                ],
+                              );
+                            }
+
+                            //
+                            if (snapshot.data!.size == 2) {
+                              return addressCard(data);
+                            }
+
+                            return const Text('Loading...');
+                          }),
+                    ],
                   ),
                 ),
 
                 const SizedBox(height: 16),
 
-                // hall
-                StreamBuilder<DocumentSnapshot>(
-                    stream: MyRepo.refAddressHall.snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return const Text('Something wrong');
-                      }
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // delivery
+                      Text(
+                        'Delivery Option',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
 
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                            child: Container(
-                          constraints: const BoxConstraints(minHeight: 100),
-                        ));
-                      }
+                      const Divider(),
 
-                      if (!snapshot.data!.exists) {
-                        return Center(
-                            child: Container(
-                          constraints: const BoxConstraints(minHeight: 100),
-                        ));
-                      }
+                      // delivery option
+                      Row(
+                        children: [
+                          //
+                          const Icon(Icons.radio_button_checked),
 
-                      //
-                      Map<String, Object?> data =
-                          snapshot.data!.data() as Map<String, Object?>;
-                      var address = AddressModel.fromJson(data);
-
-                      return Container(
-                        constraints: const BoxConstraints(minHeight: 100),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // hall icon, title, radio
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                          const SizedBox(width: 16),
+                          //
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(
-                                  Icons.account_balance,
-                                  color: Colors.blue,
-                                  size: 20,
-                                ),
-
-                                const SizedBox(width: 8),
-
-                                // hall title
+                                //
                                 Text(
-                                  'Hall',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge!
-                                      .copyWith(
-                                        color: Colors.blue,
-                                      ),
+                                  'Regular Delivery',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
                                 ),
+                                Text(
+                                  'order will delivery on next day',
+                                  style: Theme.of(context).textTheme.bodyText2,
+                                )
+                              ],
+                            ),
+                          ),
 
-                                const Spacer(),
+                          //
+                          StreamBuilder<DocumentSnapshot>(
+                              stream: UserRepo.refDelivery.snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return const Text('Something went wrong');
+                                }
+
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CupertinoActivityIndicator());
+                                }
 
                                 //
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedAddress = 'Hall';
-                                    });
-                                  },
-                                  child: Icon(
-                                    _selectedAddress == 'Hall'
-                                        ? Icons.check_circle
-                                        : Icons.radio_button_unchecked_rounded,
-                                    size: 28,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const Divider(height: 12),
-
-                            // name,  phone and edit
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // name,  phone
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    //name
-                                    Text(
-                                      address.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            // letterSpacing: .5,
-                                          ),
-                                    ),
-
-                                    // phone
-                                    Text(address.phone,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .subtitle2),
-                                  ],
-                                ),
-
-                                //edit
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(Icons.edit)),
-                              ],
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            // address
-                            Text(
-                              address.address,
-                              style: Theme.of(context).textTheme.bodyText1,
-                            ),
-
-                            //place
-                            Text(
-                              address.place,
-                              style: Theme.of(context).textTheme.bodyText1,
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-
-                const SizedBox(height: 8),
-
-                // home
-                StreamBuilder<DocumentSnapshot>(
-                    stream: MyRepo.refAddressHome.snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return const Text('Something wrong');
-                      }
-
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                            child: Container(
-                          constraints: const BoxConstraints(minHeight: 100),
-                        ));
-                      }
-
-                      if (!snapshot.data!.exists) {
-                        return Center(
-                            child: Container(
-                          constraints: const BoxConstraints(minHeight: 100),
-                        ));
-                      }
-
-                      //
-                      Map<String, Object?> data =
-                          snapshot.data!.data() as Map<String, Object?>;
-                      var address = AddressModel.fromJson(data);
-
-                      return Container(
-                        constraints: const BoxConstraints(minHeight: 100),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // home icon, title, radio
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.home,
-                                  color: Colors.orange,
-                                  // size: 20,
-                                ),
-
-                                const SizedBox(width: 8),
-
-                                // hall title
-                                Text(
-                                  'Home',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge!
-                                      .copyWith(
-                                        color: Colors.orange,
-                                      ),
-                                ),
-
-                                const Spacer(),
+                                _deliveryCharge = snapshot.data!.get('charge');
 
                                 //
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedAddress = 'Home';
-                                    });
-                                  },
-                                  child: Icon(
-                                    _selectedAddress == 'Home'
-                                        ? Icons.check_circle
-                                        : Icons.radio_button_unchecked_rounded,
-                                    size: 28,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const Divider(height: 12),
-
-                            // name,  phone and edit
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // name,  phone
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    //name
-                                    Text(
-                                      address.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            // letterSpacing: .5,
-                                          ),
-                                    ),
-
-                                    // phone
-                                    Text(address.phone,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .subtitle2),
-                                  ],
-                                ),
-
-                                //edit
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(Icons.edit)),
-                              ],
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            // address
-                            Text(
-                              address.address,
-                              style: Theme.of(context).textTheme.bodyText1,
-                            ),
-
-                            //place
-                            Text(
-                              address.place,
-                              style: Theme.of(context).textTheme.bodyText1,
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
+                                return Text(
+                                  '$kTk $_deliveryCharge',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.w500),
+                                );
+                              })
+                        ],
+                      )
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -421,6 +323,7 @@ class _AddressState extends State<Address> {
                     MaterialPageRoute(
                       builder: (_) => CheckoutPayment(
                         total: widget.total,
+                        delivery: _deliveryCharge,
                         address: _selectedAddress,
                         productId: widget.productId,
                         productList: widget.productList,
@@ -437,5 +340,127 @@ class _AddressState extends State<Address> {
         ],
       ),
     );
+  }
+
+  // address card
+  ListView addressCard(List data) {
+    return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: data.length,
+        itemBuilder: (context, index) {
+          //
+          AddressModel address = AddressModel.fromSnapshot(data[index]);
+          //
+          return Container(
+            constraints: const BoxConstraints(minHeight: 100),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // hall icon, title, radio
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      data[index].id == 'Hall'
+                          ? Icons.account_balance
+                          : Icons.home,
+                      color: Colors.blue,
+                      size: 20,
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // hall title
+                    Text(
+                      data[index].id,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: Colors.blue,
+                          ),
+                    ),
+
+                    const Spacer(),
+
+                    //
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedAddress = data[index].id;
+                        });
+                      },
+                      child: Icon(
+                        _selectedAddress == data[index].id
+                            ? Icons.radio_button_checked_rounded
+                            : Icons.radio_button_unchecked_rounded,
+                        size: 28,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const Divider(height: 10),
+
+                // name,  phone and edit
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // name,  phone
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //name
+                        Text(
+                          address.name,
+                          style:
+                              Theme.of(context).textTheme.subtitle1!.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    // letterSpacing: .5,
+                                  ),
+                        ),
+
+                        // phone
+                        Text(address.phone,
+                            style: Theme.of(context).textTheme.subtitle2),
+                      ],
+                    ),
+
+                    //edit
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => data[index].id == 'Hall'
+                                      ? AddressHall(address: address)
+                                      : AddressHome(address: address)));
+                        },
+                        icon: const Icon(Icons.edit)),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                // address
+                Text(
+                  address.address,
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+
+                //place
+                Text(
+                  address.place,
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+              ],
+            ),
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) =>
+            const SizedBox(height: 8));
   }
 }

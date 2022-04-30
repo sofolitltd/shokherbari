@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class OrderModel {
+class OrderModelAdmin {
   final String orderId;
   final String email;
   final int total;
@@ -15,7 +15,7 @@ class OrderModel {
   final Timestamp time;
   final String status;
 
-  OrderModel({
+  OrderModelAdmin({
     required this.orderId,
     required this.email,
     required this.total,
@@ -39,7 +39,7 @@ class OrderModel {
   //       );
 
   // fetch
-  static fromSnapshot(json) => OrderModel(
+  static fromSnapshot(json) => OrderModelAdmin(
         orderId: json['orderId']! as String,
         email: json['email']! as String,
         total: json['total']! as int,

@@ -47,6 +47,12 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
       body: Column(
         children: [
           //
+          StreamBuilder<Object>(
+              stream: null,
+              builder: (context, snapshot) {
+                return Container();
+              }),
+
           widget.method == 'bkash'
               ? paymentWithBkash(context)
               : paymentWithCash(context),
@@ -77,6 +83,9 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
                           context: context,
                           builder: (context) => Bkash(
                             orderId: orderId.toString(),
+                            charge: int.parse(
+                                (widget.total * 0.02).toStringAsFixed(0)),
+                            delivery: widget.delivery,
                             total: int.parse((widget.total +
                                     (widget.total * 0.02) +
                                     widget.delivery)
@@ -93,16 +102,18 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
                         //
                         OrderModel order = OrderModel(
                           orderId: orderId.toString(),
-                          email: MyRepo.userEmail,
+                          email: UserRepo.userEmail,
                           total: widget.total + widget.delivery,
+                          charge: 0,
+                          delivery: widget.delivery,
                           productList: widget.productList,
                           phone: '',
                           transaction: '',
                           message: '',
-                          method: 'cash',
+                          method: 'Cash',
                           address: widget.address,
                           time: Timestamp.now(),
-                          status: MyRepo.kOrderStatus,
+                          status: kOrderStatus,
                         );
 
                         //add order
@@ -111,7 +122,7 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
 
                         //remove from stock
                         for (var id in widget.productId) {
-                          MyRepo.refCart.doc(id).get().then((value) async {
+                          UserRepo.refCart.doc(id).get().then((value) async {
                             var qty = value.get('quantity');
                             await OrderProvider.removeFromStock(id, qty);
                           });
@@ -166,7 +177,7 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
               children: const [
                 Text('1. open Bkash App'),
                 Text('2. Select Send Money'),
-                Text('3. Enter Number: ${MyRepo.kBkashAccount}'),
+                Text('3. Enter Number: $kBkashAccount'),
                 Text('4. Enter Amount'),
                 Text('5. Enter Pin to Confirm'),
               ],
@@ -182,7 +193,7 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
           // number
           GestureDetector(
             onTap: () {
-              Clipboard.setData(const ClipboardData(text: MyRepo.kBkashAccount))
+              Clipboard.setData(const ClipboardData(text: kBkashAccount))
                   .then((value) {
                 ScaffoldMessenger.of(context)
                   ..hideCurrentSnackBar()
@@ -198,7 +209,7 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
                 SizedBox(width: 4),
                 //
                 Text(
-                  '01704340860',
+                  kBkashAccount,
                   style: TextStyle(fontSize: 20),
                 ),
               ],
@@ -213,8 +224,8 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
           // address
           StreamBuilder<DocumentSnapshot>(
               stream: widget.address == 'Hall'
-                  ? MyRepo.refAddressHall.snapshots()
-                  : MyRepo.refAddressHome.snapshots(),
+                  ? UserRepo.refAddressHall.snapshots()
+                  : UserRepo.refAddressHome.snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Text('Something wrong');
@@ -287,6 +298,16 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
           // address
 
           const SizedBox(height: 16),
+
+          //
+          // const Text('* Order ID'),
+          // Container(
+          //   color: Colors.white,
+          //   padding: const EdgeInsets.all(8),
+          //   child: Text('Order tracking id: #${widget.method}'),
+          // ),
+          //
+          // const SizedBox(height: 16),
 
           // total block
           Container(
@@ -403,8 +424,8 @@ class _CheckoutPaymentDetailsState extends State<CheckoutPaymentDetails> {
           // address
           StreamBuilder<DocumentSnapshot>(
               stream: widget.address == 'Hall'
-                  ? MyRepo.refAddressHall.snapshots()
-                  : MyRepo.refAddressHome.snapshots(),
+                  ? UserRepo.refAddressHall.snapshots()
+                  : UserRepo.refAddressHome.snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Text('Something wrong');

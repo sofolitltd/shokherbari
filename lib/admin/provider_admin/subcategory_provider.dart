@@ -10,7 +10,7 @@ class SubcategoryProvider {
     required String subcategoryName,
     required String imageUrl,
   }) async {
-    await MyRepo.refSubcategories.doc().set(
+    await UserRepo.refSubcategories.doc().set(
       {'category': category, 'name': subcategoryName, 'image': imageUrl},
     ).then((value) {
       Fluttertoast.cancel();
@@ -20,7 +20,7 @@ class SubcategoryProvider {
 
   //removeFromSubcategory
   static removeFromSubcategory({required String subcategoryId}) async {
-    await MyRepo.refSubcategories.doc(subcategoryId).delete().then((value) {
+    await UserRepo.refSubcategories.doc(subcategoryId).delete().then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Remove from subcategory');
     });

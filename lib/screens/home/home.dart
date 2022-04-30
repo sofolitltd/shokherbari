@@ -41,9 +41,9 @@ class Home extends StatelessWidget {
         ),
         // leading: MyRepo.userEmail == 'asifreyad2@gmail.com'
         leading: StreamBuilder<DocumentSnapshot>(
-            stream: MyRepo.ref
+            stream: UserRepo.ref
                 .collection('Admin')
-                .doc(MyRepo.userEmail)
+                .doc(UserRepo.userEmail)
                 // .doc('ashanulhaque008@gmail.com')
                 .snapshots(),
             builder: (context, snapshot) {

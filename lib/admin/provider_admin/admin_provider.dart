@@ -7,7 +7,7 @@ class AdminProvider {
 
   // admin email
   static String getAdminEmail() {
-    MyRepo.ref
+    UserRepo.ref
         .collection('Admin')
         .doc(email)
         .get()

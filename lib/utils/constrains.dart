@@ -5,7 +5,23 @@ import 'package:firebase_storage/firebase_storage.dart';
 const kBrandName = 'Shokher Bari';
 const kTk = '৳';
 
-class MyRepo {
+//admin
+const kBkashAccount = '01780658655';
+const kMobileAdmin = '01780658655';
+const kMobileAddress = 'Anonto, Pabna';
+
+//
+const kOrderStatus = 'Pending';
+
+// short by list
+const List<String> shortByList = [
+  'All',
+  'Featured',
+  'Price, low to high',
+  'Price, high to low',
+];
+
+class UserRepo {
   static User user = FirebaseAuth.instance.currentUser!;
 
   //user
@@ -18,48 +34,47 @@ class MyRepo {
   static final refStorage = FirebaseStorage.instance;
 
   // banner
-  static final refBanner = MyRepo.ref.collection('Banner');
+  static final refBanner = ref.collection('Banner');
 
   //categories
-  static final refCategories = MyRepo.ref.collection('Categories');
+  static final refCategories = ref.collection('Categories');
 
   //storage categories
-  static final refStorageCategories = MyRepo.refStorage.ref('Categories');
+  static final refStorageCategories = refStorage.ref('Categories');
 
   //categories
-  static final refSubcategories = MyRepo.ref.collection('Subcategories');
+  static final refSubcategories = ref.collection('Subcategories');
 
   //storage subcategories
   static final refStorageSubcategories =
       refStorageCategories.child('Subcategories');
 
   // product
-  static final refProducts = MyRepo.ref.collection('Products');
+  static final refProducts = ref.collection('Products');
 
   // storage product
-  static final refStorageProducts = MyRepo.refStorage.ref('Products');
+  static final refStorageProducts = refStorage.ref('Products');
 
   // refCart
   static final refCart =
-      MyRepo.ref.collection('Users').doc(MyRepo.userEmail).collection('Cart');
+      ref.collection('Users').doc(userEmail).collection('Cart');
 
   //refWishlist
-  static final refWishlist = MyRepo.ref
-      .collection('Users')
-      .doc(MyRepo.userEmail)
-      .collection('Wishlist');
+  static final refWishlist =
+      ref.collection('Users').doc(userEmail).collection('Wishlist');
 
   //orders
-  static final refOrder = MyRepo.ref.collection('Orders');
+  static final refOrder = ref.collection('Orders');
 
   //payment
-  static final refPayment = MyRepo.ref.collection('Payment');
+  static final refPayment = ref.collection('Payment');
+
+  // refuser
+  static final refUser = ref.collection('Users').doc(userEmail);
 
   // refAddress
-  static final refAddress = MyRepo.ref
-      .collection('Users')
-      .doc(MyRepo.userEmail)
-      .collection('Address');
+  static final refAddress =
+      ref.collection('Users').doc(userEmail).collection('Address');
 
   //refAddress hall
   static final refAddressHall = refAddress.doc('Hall');
@@ -67,17 +82,6 @@ class MyRepo {
   //refAddress home
   static final refAddressHome = refAddress.doc('Home');
 
-  // short by list
-  static final List<String> shortByList = [
-    'All',
-    'Featured',
-    'Price, low to high',
-    'Price, high to low',
-  ];
-
-  //
-  static const kBkashAccount = '01704340860';
-
-  //
-  static const kOrderStatus = 'Pending';
+  // refDelivery
+  static final refDelivery = ref.collection('Extra').doc('Delivery');
 }

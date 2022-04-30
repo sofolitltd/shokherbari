@@ -126,7 +126,7 @@ class _EditProductState extends State<EditProduct> {
                       // subcategory
                       if (_selectedCategory != null)
                         StreamBuilder<QuerySnapshot>(
-                          stream: MyRepo.refSubcategories
+                          stream: UserRepo.refSubcategories
                               .where('category', isEqualTo: _selectedCategory)
                               .snapshots(),
                           builder: (context, snapshot) {
@@ -426,7 +426,7 @@ class _EditProductState extends State<EditProduct> {
     var imageList = [];
     //
     for (var img in _selectedFiles) {
-      Reference ref = MyRepo.refStorageProducts.child(uid).child(img.name);
+      Reference ref = UserRepo.refStorageProducts.child(uid).child(img.name);
 
       //
       await ref.putFile(File(img.path)).whenComplete(() async {
@@ -473,7 +473,7 @@ class _EditProductState extends State<EditProduct> {
 
   // get categories
   getCategory() {
-    MyRepo.refCategories
+    UserRepo.refCategories
         .orderBy('name')
         .get()
         .then((QuerySnapshot querySnapshot) {

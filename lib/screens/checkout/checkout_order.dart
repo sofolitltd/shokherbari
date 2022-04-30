@@ -53,8 +53,8 @@ class CheckoutOrder extends StatelessWidget {
                         color: Colors.black87,
                       ),
                       Icon(
-                        Icons.adjust,
-                        color: Colors.orange,
+                        Icons.check_circle_rounded,
+                        color: Colors.black87,
                       ),
                     ],
                   ),
@@ -85,7 +85,7 @@ class CheckoutOrder extends StatelessWidget {
                       'Order placed',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.orange,
+                        color: Colors.black87,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -5,7 +5,7 @@ class ExtraProvider {
   static getOrderId() async {
     int orderId = 0;
 
-    await MyRepo.ref.collection('Extra').doc('Order').get().then((value) {
+    await UserRepo.ref.collection('Extra').doc('Order').get().then((value) {
       orderId = value.get('orderId') + 1;
     });
 
@@ -14,7 +14,7 @@ class ExtraProvider {
 
   // update order
   static updateOrderId({required int orderId}) async {
-    await MyRepo.ref.collection('Extra').doc('Order').update({
+    await UserRepo.ref.collection('Extra').doc('Order').update({
       'orderId': orderId,
     });
   }

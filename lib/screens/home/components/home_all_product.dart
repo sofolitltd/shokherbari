@@ -48,7 +48,7 @@ class AllProductHome extends StatelessWidget {
               minHeight: 300,
             ),
             child: StreamBuilder<QuerySnapshot>(
-              stream: MyRepo.refProducts.limit(24).snapshots(),
+              stream: UserRepo.refProducts.limit(24).snapshots(),
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasError) {

@@ -6,9 +6,9 @@ import '../utils/constrains.dart';
 class WishlistProvider {
   //addToWishList
   static addToWishList({required ProductModel product}) async {
-    await MyRepo.refWishlist
+    await UserRepo.refWishlist
         .doc(product.id)
-        .set({'product_id': product.id}).then((value) {
+        .set({'productId': product.id}).then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Add to wishList');
     });
@@ -16,7 +16,7 @@ class WishlistProvider {
 
   //removeFromWishList
   static removeFromWishList({required String id}) async {
-    await MyRepo.refWishlist.doc(id).delete().then((value) {
+    await UserRepo.refWishlist.doc(id).delete().then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Remove from wishList');
     });

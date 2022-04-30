@@ -50,7 +50,7 @@ class _HomeSubcategoriesDetailsState extends State<HomeSubcategoriesDetails> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                           value: selectedShortBy,
-                          items: MyRepo.shortByList
+                          items: shortByList
                               .map((String val) => DropdownMenuItem<String>(
                                     child: Text(val),
                                     value: val,
@@ -69,10 +69,12 @@ class _HomeSubcategoriesDetailsState extends State<HomeSubcategoriesDetails> {
 
             //
             Expanded(
-                child: ProductList(
-                    category: widget.category,
-                    subcategory: widget.subcategory.get('name'),
-                    shortBy: selectedShortBy)),
+                child: SingleChildScrollView(
+              child: ProductList(
+                  category: widget.category,
+                  subcategory: widget.subcategory.get('name'),
+                  shortBy: selectedShortBy),
+            )),
           ],
         ),
       ),

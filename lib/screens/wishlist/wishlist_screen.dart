@@ -14,10 +14,7 @@ class Wishlist extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Wishlist'),
         centerTitle: true,
-        elevation: 0.1,
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-        ],
+        elevation: 0,
       ),
 
       // cart body
@@ -27,7 +24,7 @@ class Wishlist extends StatelessWidget {
           // cart product
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-                stream: MyRepo.refWishlist.snapshots(),
+                stream: UserRepo.refWishlist.snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError) {
@@ -49,7 +46,7 @@ class Wishlist extends StatelessWidget {
                     itemBuilder: (_, index) {
                       var id = data[index].id;
                       return StreamBuilder<DocumentSnapshot>(
-                        stream: MyRepo.refProducts.doc(id).snapshots(),
+                        stream: UserRepo.refProducts.doc(id).snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
                             return const Center(

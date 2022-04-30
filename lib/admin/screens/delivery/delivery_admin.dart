@@ -16,7 +16,7 @@ class DeliveryAdmin extends StatelessWidget {
 
       //
       body: StreamBuilder<DocumentSnapshot>(
-        stream: MyRepo.ref.collection('Extra').doc('Delivery').snapshots(),
+        stream: UserRepo.ref.collection('Extra').doc('Delivery').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something wrong'));

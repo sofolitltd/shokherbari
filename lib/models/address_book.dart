@@ -73,7 +73,9 @@
 //         );
 // }
 
-// address model
+// address models
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AddressModel {
   final String name;
   final String phone;
@@ -99,6 +101,15 @@ class AddressModel {
 
   // fetch
   AddressModel.fromJson(Map<String, Object?> json)
+      : this(
+          name: json['name']! as String,
+          phone: json['phone']! as String,
+          address: json['address']! as String,
+          place: json['place']! as String,
+        );
+
+  // fetch
+  AddressModel.fromSnapshot(DocumentSnapshot json)
       : this(
           name: json['name']! as String,
           phone: json['phone']! as String,

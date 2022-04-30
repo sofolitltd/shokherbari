@@ -39,7 +39,7 @@ class FeaturedProductHome extends StatelessWidget {
           SizedBox(
             height: 275,
             child: StreamBuilder<QuerySnapshot>(
-                stream: MyRepo.refProducts
+                stream: UserRepo.refProducts
                     .where('featured', isEqualTo: true)
                     .limit(12)
                     .snapshots(),

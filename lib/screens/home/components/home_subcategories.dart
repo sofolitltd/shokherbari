@@ -32,7 +32,7 @@ class _HomeSubcategoriesState extends State<HomeSubcategories> {
         SizedBox(
           height: 120,
           child: StreamBuilder<QuerySnapshot>(
-              stream: MyRepo.refSubcategories
+              stream: UserRepo.refSubcategories
                   .where('category', isEqualTo: widget.category.get('name'))
                   .orderBy('name', descending: false)
                   .snapshots(),
@@ -83,7 +83,7 @@ class _HomeSubcategoriesState extends State<HomeSubcategories> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                       value: selectedShortBy,
-                      items: MyRepo.shortByList
+                      items: shortByList
                           .map((String val) => DropdownMenuItem<String>(
                                 child: Text(val),
                                 value: val,

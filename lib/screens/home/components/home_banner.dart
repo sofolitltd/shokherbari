@@ -13,7 +13,7 @@ class HomeBanner extends StatelessWidget {
     return SizedBox(
       height: 210,
       child: FutureBuilder<QuerySnapshot>(
-        future: MyRepo.refBanner.get(),
+        future: UserRepo.refBanner.get(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something went wrong'));
@@ -44,6 +44,9 @@ class HomeBanner extends StatelessWidget {
           }
 
           return Carousel(
+            onImageTap: (val) {
+              print(val);
+            },
             dotPosition: DotPosition.bottomLeft,
             dotIncreasedColor: Colors.red,
             dotBgColor: Colors.transparent,
@@ -52,8 +55,8 @@ class HomeBanner extends StatelessWidget {
             animationDuration: const Duration(milliseconds: 500),
             images: data
                 .map(
-                  (image) => CachedNetworkImage(
-                    imageUrl: image.get('image'),
+                  (images) => CachedNetworkImage(
+                    imageUrl: images.get('image'),
                     fit: BoxFit.cover,
                     imageBuilder: (context, imageProvider) => Container(
                       margin: const EdgeInsets.all(8),

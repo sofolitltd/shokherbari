@@ -24,7 +24,8 @@ class HomeCategory extends StatelessWidget {
         SizedBox(
           height: 250,
           child: StreamBuilder<QuerySnapshot>(
-              stream: MyRepo.refCategories.orderBy('name').limit(4).snapshots(),
+              stream:
+                  UserRepo.refCategories.orderBy('name').limit(4).snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Center(child: Text('Something went wrong'));
@@ -94,9 +95,9 @@ class HomeCategory extends StatelessWidget {
             ),
             child: Text(
               '${data[index].get('name')}'.toUpperCase(),
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    fontWeight: FontWeight.w600,
-                    // letterSpacing: 1,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
                   ),
               textAlign: TextAlign.right,
             ),

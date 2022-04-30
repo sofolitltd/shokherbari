@@ -8,12 +8,14 @@ class CheckoutPayment extends StatefulWidget {
   const CheckoutPayment({
     Key? key,
     required this.total,
+    required this.delivery,
     required this.address,
     required this.productId,
     required this.productList,
   }) : super(key: key);
 
   final int total;
+  final int delivery;
   final String address;
   final List productId;
   final List productList;
@@ -23,19 +25,6 @@ class CheckoutPayment extends StatefulWidget {
 }
 
 class _CheckoutPaymentState extends State<CheckoutPayment> {
-  int deliveryCharge = 0;
-
-  @override
-  void initState() {
-    // order no
-    MyRepo.ref.collection('Extra').doc('Delivery').get().then((value) {
-      setState(() {
-        deliveryCharge = value.get('charge');
-      });
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,7 +89,7 @@ class _CheckoutPaymentState extends State<CheckoutPayment> {
                       ),
                     ),
                     Text(
-                      'Order placed',
+                      'Place Order',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.grey.shade500,
@@ -134,7 +123,7 @@ class _CheckoutPaymentState extends State<CheckoutPayment> {
                       MaterialPageRoute(
                         builder: (_) => CheckoutPaymentDetails(
                           method: 'bkash',
-                          delivery: deliveryCharge,
+                          delivery: widget.delivery,
                           total: widget.total,
                           address: widget.address,
                           productId: widget.productId,
@@ -183,7 +172,7 @@ class _CheckoutPaymentState extends State<CheckoutPayment> {
                       MaterialPageRoute(
                         builder: (_) => CheckoutPaymentDetails(
                           method: 'cash',
-                          delivery: deliveryCharge,
+                          delivery: widget.delivery,
                           total: widget.total,
                           address: widget.address,
                           productId: widget.productId,
@@ -231,7 +220,7 @@ class _CheckoutPaymentState extends State<CheckoutPayment> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // delivery
+                // delivery charge
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -242,7 +231,7 @@ class _CheckoutPaymentState extends State<CheckoutPayment> {
                       ),
                     ),
                     Text(
-                      '$kTk $deliveryCharge',
+                      '$kTk ${widget.delivery}',
                       style: Theme.of(context).textTheme.subtitle2!.copyWith(
                             color: Colors.red,
                             fontWeight: FontWeight.w700,
@@ -284,7 +273,7 @@ class _CheckoutPaymentState extends State<CheckoutPayment> {
                           ),
                     ),
                     Text(
-                      '$kTk ${widget.total + deliveryCharge}',
+                      '$kTk ${widget.total + widget.delivery}',
                       style: Theme.of(context).textTheme.subtitle1!.copyWith(
                             fontWeight: FontWeight.w700,
                             color: Colors.red,

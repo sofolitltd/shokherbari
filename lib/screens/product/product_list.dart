@@ -15,19 +15,19 @@ class ProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var ref = subcategory == ''
-        ? MyRepo.refProducts.where('category', isEqualTo: category)
-        : MyRepo.refProducts
+        ? UserRepo.refProducts.where('category', isEqualTo: category)
+        : UserRepo.refProducts
             .where('category', isEqualTo: category)
             .where('subcategory', isEqualTo: subcategory);
     return Container(
       constraints:
           BoxConstraints(minHeight: MediaQuery.of(context).size.height * .5),
       child: StreamBuilder<QuerySnapshot>(
-        stream: shortBy == MyRepo.shortByList[1]
+        stream: shortBy == shortByList[1]
             ? ref.where(shortBy!.toLowerCase(), isEqualTo: true).snapshots()
-            : shortBy == MyRepo.shortByList[2]
+            : shortBy == shortByList[2]
                 ? ref.orderBy('salePrice', descending: false).snapshots()
-                : shortBy == MyRepo.shortByList[3]
+                : shortBy == shortByList[3]
                     ? ref.orderBy('salePrice', descending: true).snapshots()
                     : ref.snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -45,7 +45,9 @@ class ProductList extends StatelessWidget {
           }
           return GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics: category == null
+                ? const AlwaysScrollableScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisSpacing: 12,

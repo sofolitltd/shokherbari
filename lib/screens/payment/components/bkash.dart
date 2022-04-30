@@ -12,6 +12,8 @@ class Bkash extends StatefulWidget {
     Key? key,
     required this.orderId,
     required this.total,
+    required this.charge,
+    required this.delivery,
     required this.productId,
     required this.productList,
     required this.address,
@@ -19,6 +21,8 @@ class Bkash extends StatefulWidget {
 
   final String orderId;
   final int total;
+  final int charge;
+  final int delivery;
   final List productId;
   final List productList;
   final String address;
@@ -71,7 +75,7 @@ class _BkashState extends State<Bkash> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Send to: ${MyRepo.kBkashAccount}',
+                      'Send to: $kBkashAccount',
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -197,20 +201,22 @@ class _BkashState extends State<Bkash> {
                           //
                           OrderModel order = OrderModel(
                             orderId: widget.orderId,
-                            email: MyRepo.userEmail,
+                            email: UserRepo.userEmail,
                             total: widget.total,
+                            charge: widget.charge,
+                            delivery: widget.delivery,
                             productList: widget.productList,
                             phone: _phoneController.text.trim(),
                             transaction: _transactionController.text,
                             message: '',
-                            method: 'bkash',
+                            method: 'Bkash',
                             address: widget.address,
                             time: Timestamp.now(),
-                            status: MyRepo.kOrderStatus,
+                            status: kOrderStatus,
                           );
 
                           //
-                          await MyRepo.refOrder
+                          await UserRepo.refOrder
                               .doc(widget.orderId)
                               .set(order.toJson())
                               .then((value) async {

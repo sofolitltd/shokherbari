@@ -26,7 +26,7 @@ class _CartState extends State<Cart> {
 
       // cart body
       body: StreamBuilder<QuerySnapshot>(
-        stream: MyRepo.refCart.snapshots(),
+        stream: UserRepo.refCart.snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something went wrong'));
@@ -55,6 +55,8 @@ class _CartState extends State<Cart> {
             //
             CartList cartList = CartList(
               productId: item.get('productId'),
+              name: item.get('name'),
+              image: item.get('image'),
               quantity: item.get('quantity'),
               price: item.get('price'),
             );
@@ -81,8 +83,10 @@ class _CartState extends State<Cart> {
                         CartList.fromSnapshot(cartListData[index]);
 
                     // cart products
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: MyRepo.refProducts.doc(cartList.productId).get(),
+                    return StreamBuilder<DocumentSnapshot>(
+                      stream: UserRepo.refProducts
+                          .doc(cartList.productId)
+                          .snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return const Center(

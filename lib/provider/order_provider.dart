@@ -6,7 +6,7 @@ import 'package:shokher_bari/utils/constrains.dart';
 class OrderProvider {
   // addToOrder
   static addToOrder(uid, OrderModel order) async {
-    await MyRepo.refOrder.doc(uid).set(order.toJson()).then((value) async {
+    await UserRepo.refOrder.doc(uid).set(order.toJson()).then((value) async {
       Fluttertoast.showToast(msg: 'Placed order successfully');
     });
   }
@@ -39,11 +39,11 @@ class OrderProvider {
 
   // addToOrder
   static removeFromStock(uid, quantity) async {
-    await MyRepo.refProducts.doc(uid).get().then((value) async {
+    await UserRepo.refProducts.doc(uid).get().then((value) async {
       //
       int stockQuantity = value.get('stockQuantity');
       if (stockQuantity != 0) {
-        await MyRepo.refProducts.doc(uid).update(
+        await UserRepo.refProducts.doc(uid).update(
             {'stockQuantity': stockQuantity - quantity}).then((value) async {
           Fluttertoast.showToast(msg: 'Placed order successfully');
         });
@@ -53,7 +53,7 @@ class OrderProvider {
 
   //remove from order
   static removeFromOrder({required String orderId}) async {
-    await MyRepo.refOrder.doc(orderId).delete().then((value) {
+    await UserRepo.refOrder.doc(orderId).delete().then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Remove from order');
     });

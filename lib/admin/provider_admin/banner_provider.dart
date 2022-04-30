@@ -11,7 +11,7 @@ class BannerProvider {
     required String imageUrl,
   }) {
     //
-    MyRepo.refBanner.doc(uid).set({
+    UserRepo.refBanner.doc(uid).set({
       'name': bannerTitle,
       'image': imageUrl,
     }).then((value) {
@@ -21,7 +21,7 @@ class BannerProvider {
 
   //removeBanner
   static removeBanner({required String id}) {
-    MyRepo.refBanner.doc(id).delete().then((value) {
+    UserRepo.refBanner.doc(id).delete().then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Remove from banner');
     });

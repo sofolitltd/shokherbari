@@ -248,6 +248,6 @@ class _SearchPageState extends State<SearchPage> {
 
 class SearchService {
   List<Future<QuerySnapshot>> searchByName() {
-    return [MyRepo.refProducts.where('searchKey').get()];
+    return [UserRepo.refProducts.where('searchKey').get()];
   }
 }

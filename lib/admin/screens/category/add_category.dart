@@ -143,7 +143,7 @@ class _AddCategoryState extends State<AddCategory> {
   uploadImage(categoryName) async {
     String uid = const Uuid().v1();
 
-    var ref = MyRepo.refStorageCategories.child('$uid.jpg');
+    var ref = UserRepo.refStorageCategories.child('$uid.jpg');
     //
     await ref.putFile(selectedImage!).whenComplete(() async {
       var imageUrl = await ref.getDownloadURL();

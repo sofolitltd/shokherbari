@@ -35,7 +35,7 @@ class AllSubcategoryAdmin extends StatelessWidget {
 
       //
       body: StreamBuilder<QuerySnapshot>(
-          stream: MyRepo.refSubcategories
+          stream: UserRepo.refSubcategories
               .where('category', isEqualTo: category)
               .snapshots(),
           builder: (context, snapshot) {

@@ -68,7 +68,7 @@ class _EditDeliveryState extends State<EditDelivery> {
                     setState(() => isUpload = true);
 
                     //
-                    MyRepo.ref.collection('Extra').doc('Delivery').set({
+                    UserRepo.ref.collection('Extra').doc('Delivery').set({
                       'charge': int.parse(_chargeController.text)
                     }).then((value) {
                       Fluttertoast.showToast(msg: 'Upload Delivery Charge');

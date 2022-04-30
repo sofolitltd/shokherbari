@@ -29,7 +29,7 @@ class AllProductAdmin extends StatelessWidget {
 
       //
       body: StreamBuilder<QuerySnapshot>(
-          stream: MyRepo.refProducts.snapshots(),
+          stream: UserRepo.refProducts.snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return const Center(child: Text('Something wrong'));
@@ -44,247 +44,304 @@ class AllProductAdmin extends StatelessWidget {
               return const Center(child: Text('No product found'));
             }
 
-            return ListView.builder(
-                itemCount: data.length,
-                padding: const EdgeInsets.all(8),
-                itemBuilder: (_, index) {
-                  ProductModel product = ProductModel.fromSnapshot(data[index]);
+            UserRepo.refProducts.where('stock', isEqualTo: 0).get();
+
+            //
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  //
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      //
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Total Products: ',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+
+                      //
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.red, width: 3),
+                        ),
+                        child: Text(data.length.toString()),
+                      ),
+
+                      //
+                      const SizedBox(width: 8),
+                    ],
+                  ),
 
                   //
-                  return Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Row(
-                        children: [
-                          //image
-                          Expanded(
-                            flex: 3,
-                            child: Stack(
-                              alignment: Alignment.bottomLeft,
+                  ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: data.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(8),
+                      itemBuilder: (_, index) {
+                        ProductModel product =
+                            ProductModel.fromSnapshot(data[index]);
+
+                        //
+                        return Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Row(
                               children: [
                                 //image
-                                ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    minHeight: 116,
-                                    maxHeight: 124,
-                                  ),
-                                  child: Image.network(
-                                    product.images[0],
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-
-                                //new / featured
-                                product.featured
-                                    ? Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 2, horizontal: 8),
-                                        margin: const EdgeInsets.only(
-                                            left: 4, bottom: 4),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          color: Colors.green.shade300,
-                                        ),
-                                        child: const Text(
-                                          'Featured',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      )
-                                    : Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 2, horizontal: 8),
-                                        margin: const EdgeInsets.only(
-                                            left: 4, bottom: 4),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          color: Colors.yellow.shade300,
-                                        ),
-                                        child: const Text(
-                                          'Sale',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          // info
-                          Expanded(
-                            flex: 8,
-                            child: Stack(
-                              alignment: Alignment.topRight,
-                              children: [
-                                //
-                                Container(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(4, 8, 8, 8),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                Expanded(
+                                  flex: 3,
+                                  child: Stack(
+                                    alignment: Alignment.bottomLeft,
                                     children: [
-                                      //category name
-                                      Row(
-                                        children: [
-                                          //category
-                                          Text(
-                                            '${product.category} > ',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1,
+                                      //image
+                                      IntrinsicWidth(
+                                        child: ConstrainedBox(
+                                          constraints: const BoxConstraints(
+                                            minHeight: 120,
+                                            maxHeight: 120,
                                           ),
-
-                                          //subcategory
-                                          Text(
-                                            product.subcategory,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText2,
+                                          child: IntrinsicHeight(
+                                            child: Image.network(
+                                              product.images[0],
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ],
+                                        ),
                                       ),
 
-                                      //product name
-                                      Text(
-                                        product.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .subtitle1,
-                                      ),
-
-                                      // price
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          //price
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              //offer price
-                                              Text(
-                                                '$kTk ${product.salePrice}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle1!
-                                                    .copyWith(
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
+                                      //new / featured
+                                      product.featured
+                                          ? Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 2,
+                                                      horizontal: 8),
+                                              margin: const EdgeInsets.only(
+                                                  left: 4, bottom: 4),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                color: Colors.green.shade300,
                                               ),
-
-                                              const SizedBox(width: 8),
-
-                                              // regular price
-                                              if (product.regularPrice != 0)
-                                                Text(
-                                                  '$kTk ${product.regularPrice}',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .subtitle2!
-                                                      .copyWith(
-                                                          color: Colors.grey,
-                                                          decoration:
-                                                              TextDecoration
-                                                                  .lineThrough),
-                                                ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-
-                                      // weight, stock
-                                      Row(
-                                        children: [
-                                          //weight
-                                          Row(
-                                            children: [
-                                              //qty title
-                                              Text(
-                                                'Weight:  ',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyText2,
+                                              child: const Text(
+                                                'Featured',
+                                                style: TextStyle(fontSize: 12),
                                               ),
-
-                                              //weight
-                                              Text(
-                                                product.weight == ''
-                                                    ? 'N/A'
-                                                    : product.weight,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle2!
-                                                    .copyWith(
-                                                      color: Colors.red,
-                                                    ),
+                                            )
+                                          : Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 2,
+                                                      horizontal: 8),
+                                              margin: const EdgeInsets.only(
+                                                  left: 4, bottom: 4),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                color: Colors.yellow.shade300,
                                               ),
-                                            ],
-                                          ),
-
-                                          const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 8.0),
-                                            child: Text('|'),
-                                          ),
-
-                                          //stock
-                                          Row(
-                                            children: [
-                                              //qty title
-                                              Text(
-                                                'Stock:  ',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyText2,
+                                              child: const Text(
+                                                'Sale',
+                                                style: TextStyle(fontSize: 12),
                                               ),
-
-                                              //stock
-                                              Text(
-                                                '${product.stockQuantity}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle1!
-                                                    .copyWith(
-                                                        color: Colors.red),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                            ),
                                     ],
                                   ),
                                 ),
 
-                                // menu btn
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: IconButton(
-                                    onPressed: () async {
-                                      productBottomSheet(context, product);
-                                    },
-                                    icon: const Icon(Icons.more_vert_rounded),
+                                const SizedBox(width: 8),
+
+                                // info
+                                Expanded(
+                                  flex: 8,
+                                  child: Stack(
+                                    alignment: Alignment.topRight,
+                                    children: [
+                                      //
+                                      Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            4, 8, 8, 8),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            //category name
+                                            Row(
+                                              children: [
+                                                //category
+                                                Text(
+                                                  '${product.category} > ',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyText1,
+                                                ),
+
+                                                //subcategory
+                                                Text(
+                                                  product.subcategory,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyText2,
+                                                ),
+                                              ],
+                                            ),
+
+                                            //product name
+                                            Text(
+                                              product.name,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .subtitle1,
+                                            ),
+
+                                            // price
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                //price
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    //offer price
+                                                    Text(
+                                                      '$kTk ${product.salePrice}',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .subtitle1!
+                                                          .copyWith(
+                                                            color: Colors.red,
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                    ),
+
+                                                    const SizedBox(width: 8),
+
+                                                    // regular price
+                                                    if (product.regularPrice !=
+                                                        0)
+                                                      Text(
+                                                        '$kTk ${product.regularPrice}',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2!
+                                                            .copyWith(
+                                                                color:
+                                                                    Colors.grey,
+                                                                decoration:
+                                                                    TextDecoration
+                                                                        .lineThrough),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+
+                                            // weight, stock
+                                            Row(
+                                              children: [
+                                                //weight
+                                                Row(
+                                                  children: [
+                                                    //qty title
+                                                    Text(
+                                                      'Weight:  ',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyText2,
+                                                    ),
+
+                                                    //weight
+                                                    Text(
+                                                      product.weight == ''
+                                                          ? 'N/A'
+                                                          : product.weight,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .subtitle2!
+                                                          .copyWith(
+                                                            color: Colors.red,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+
+                                                const Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                                  child: Text('|'),
+                                                ),
+
+                                                //stock
+                                                Row(
+                                                  children: [
+                                                    //qty title
+                                                    Text(
+                                                      'Stock:  ',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyText2,
+                                                    ),
+
+                                                    //stock
+                                                    Text(
+                                                      '${product.stockQuantity}',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .subtitle1!
+                                                          .copyWith(
+                                                              color:
+                                                                  Colors.red),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // menu btn
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: IconButton(
+                                          onPressed: () async {
+                                            productBottomSheet(
+                                                context, product);
+                                          },
+                                          icon: const Icon(
+                                              Icons.more_vert_rounded),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                });
+                        );
+                      }),
+                ],
+              ),
+            );
           }),
     );
   }
@@ -318,17 +375,53 @@ class AllProductAdmin extends StatelessWidget {
                   // delete
                   ListTile(
                     onTap: () async {
-                      //removeFromProduct
-                      await ProductProviderAdmin.removeProduct(id: product.id);
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete product'),
+                          content:
+                              const Text('Are you sure to delete product?'),
+                          titlePadding:
+                              const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 12),
+                          actionsPadding: const EdgeInsets.only(right: 10),
+                          actions: [
+                            //cancel
+                            TextButton(
+                                onPressed: () {
+                                  //close
+                                  Navigator.pop(context);
 
-                      //removeProductImage
-                      for (var imageUrl in product.images) {
-                        ProductProviderAdmin.removeProductImage(
-                            imageUrl: imageUrl);
-                      }
+                                  //close bottom sheet
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(('Cancel'))),
 
-                      //close bottom sheet
-                      Navigator.pop(context);
+                            // const SizedBox(width: 16),
+                            // delete
+                            OutlinedButton(
+                                onPressed: () async {
+                                  //removeFromProduct
+                                  await ProductProviderAdmin.removeProduct(
+                                      id: product.id);
+
+                                  //removeProductImage
+                                  for (var imageUrl in product.images) {
+                                    ProductProviderAdmin.removeProductImage(
+                                        imageUrl: imageUrl);
+                                    //
+                                  }
+
+                                  //close
+                                  Navigator.pop(context);
+                                  //close
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(('Delete'))),
+                          ],
+                        ),
+                      );
                     },
                     leading: const Icon(Icons.delete),
                     title: const Text('Delete'),

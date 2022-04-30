@@ -2,11 +2,11 @@ import 'package:carousel_pro_nullsafety/carousel_pro_nullsafety.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shokher_bari/models/product_model.dart';
-import 'package:shokher_bari/provider/cart_provider.dart';
-import 'package:shokher_bari/provider/wishlist_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:shokher_bari/utils/call_mobile.dart';
 
+import '/models/product_model.dart';
+import '/provider/cart_provider.dart';
+import '/provider/wishlist_provider.dart';
 import '/utils/constrains.dart';
 import '../cart/cart.dart';
 import '../home/home.dart';
@@ -71,7 +71,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   ),
                   alignment: Alignment.center,
                   child: StreamBuilder<QuerySnapshot>(
-                      stream: MyRepo.refCart.snapshots(),
+                      stream: UserRepo.refCart.snapshots(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
                           return Container();
@@ -106,12 +106,8 @@ class _ProductDetailsState extends State<ProductDetails> {
         padding: const EdgeInsets.only(bottom: 56),
         child: FloatingActionButton(
           onPressed: () async {
-            //
-            final Uri launchUri = Uri(
-              scheme: 'tel',
-              path: '01704340860',
-            );
-            await launchUrl(launchUri);
+            // call mobile
+            callMobile(kMobileAdmin);
           },
           child: const Icon(
             Icons.support_agent,
@@ -140,9 +136,14 @@ class _ProductDetailsState extends State<ProductDetails> {
                     // dotPosition: DotPosition.bottomCenter,
                     // dotIncreaseSize: 4,
                     images: widget.product.images
-                        .map((image) => Image.network(
-                              image,
-                              fit: BoxFit.cover,
+                        .map((image) => Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade200,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(image),
+                                ),
+                              ),
                             ))
                         .toList(),
                   ),
@@ -241,24 +242,24 @@ class _ProductDetailsState extends State<ProductDetails> {
                               Row(
                                 children: [
                                   // share
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.grey.shade300,
-                                    ),
-                                    padding: const EdgeInsets.all(6),
-                                    margin: const EdgeInsets.all(6),
-                                    child: const Icon(
-                                      Icons.share_outlined,
-                                      size: 20,
-                                    ),
-                                  ),
+                                  // Container(
+                                  //   decoration: BoxDecoration(
+                                  //     shape: BoxShape.circle,
+                                  //     color: Colors.grey.shade300,
+                                  //   ),
+                                  //   padding: const EdgeInsets.all(6),
+                                  //   margin: const EdgeInsets.all(6),
+                                  //   child: const Icon(
+                                  //     Icons.share_outlined,
+                                  //     size: 20,
+                                  //   ),
+                                  // ),
 
                                   const SizedBox(width: 8),
 
                                   // add to favorite
                                   StreamBuilder<DocumentSnapshot>(
-                                      stream: MyRepo.refWishlist
+                                      stream: UserRepo.refWishlist
                                           .doc(widget.product.id)
                                           .snapshots(),
                                       builder: (context, snapshot) {
@@ -431,7 +432,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       // add to cart
                       Expanded(
                         child: StreamBuilder<DocumentSnapshot>(
-                            stream: MyRepo.refCart
+                            stream: UserRepo.refCart
                                 .doc(widget.product.id)
                                 .snapshots(),
                             builder: (context, snapshot) {

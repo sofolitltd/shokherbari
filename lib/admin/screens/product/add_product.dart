@@ -36,8 +36,6 @@ class _AddProductState extends State<AddProduct> {
 
   final ImagePicker _picker = ImagePicker();
   final List<XFile> _selectedFiles = [];
-  int _uploadItem = 0;
-  bool _isUploadLoading = false;
 
   @override
   void initState() {
@@ -74,285 +72,331 @@ class _AddProductState extends State<AddProduct> {
       ),
 
       //
-      body: _isUploadLoading
-          ? showLoading()
-          : Form(
-              key: _globalKey,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // category list
-                      DropdownButtonFormField(
-                        hint: const Text('Select Category'),
-                        value: _selectedCategory,
-                        items: categoryList
-                            .map((item) => DropdownMenuItem<String>(
-                                value: item, child: Text(item)))
-                            .toList(),
+      body: Form(
+        key: _globalKey,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // category list
+                DropdownButtonFormField(
+                  hint: const Text('Select Category'),
+                  value: _selectedCategory,
+                  items: categoryList
+                      .map((item) => DropdownMenuItem<String>(
+                          value: item, child: Text(item)))
+                      .toList(),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedCategory = null;
+                      _selectedSubcategory = null;
+                      _selectedCategory = value!;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'please select a category' : null,
+                ),
+
+                if (_selectedCategory != null) const SizedBox(height: 8),
+
+                // subcategory
+                if (_selectedCategory != null)
+                  StreamBuilder<QuerySnapshot>(
+                    stream: UserRepo.refSubcategories
+                        .where('category', isEqualTo: _selectedCategory)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Text('Some thing went wrong');
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // loading state
+                        return DropdownButtonFormField(
+                          hint: const Text('Select Subcategory'),
+                          items: [].map((item) {
+                            // category name
+                            return DropdownMenuItem<String>(
+                                value: item, child: Text(item));
+                          }).toList(),
+                          onChanged: (String? value) {},
+                        );
+                      }
+
+                      // select sub
+                      return DropdownButtonFormField(
+                        hint: const Text('Select Subcategory'),
+                        value: _selectedSubcategory,
+                        items: snapshot.data!.docs.map((item) {
+                          // category name
+                          return DropdownMenuItem<String>(
+                              value: item.get('name'),
+                              child: Text(item.get('name')));
+                        }).toList(),
                         onChanged: (String? value) {
                           setState(() {
-                            _selectedCategory = null;
-                            _selectedSubcategory = null;
-                            _selectedCategory = value!;
+                            _selectedSubcategory = value!;
                           });
                         },
-                        validator: (value) =>
-                            value == null ? 'please select a category' : null,
-                      ),
+                        validator: (value) => value == null
+                            ? 'please select a subcategory'
+                            : null,
+                      );
+                    },
+                  ),
 
-                      if (_selectedCategory != null) const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-                      // subcategory
-                      if (_selectedCategory != null)
-                        StreamBuilder<QuerySnapshot>(
-                          stream: MyRepo.refSubcategories
-                              .where('category', isEqualTo: _selectedCategory)
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return const Text('Some thing went wrong');
-                            }
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              // loading state
-                              return DropdownButtonFormField(
-                                hint: const Text('Select Subcategory'),
-                                items: [].map((item) {
-                                  // category name
-                                  return DropdownMenuItem<String>(
-                                      value: item, child: Text(item));
-                                }).toList(),
-                                onChanged: (String? value) {},
-                              );
-                            }
+                // name
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Product Name',
+                    label: Text('Product Name'),
+                  ),
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.next,
+                  textCapitalization: TextCapitalization.words,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Enter product name' : null,
+                ),
 
-                            // select sub
-                            return DropdownButtonFormField(
-                              hint: const Text('Select Subcategory'),
-                              value: _selectedSubcategory,
-                              items: snapshot.data!.docs.map((item) {
-                                // category name
-                                return DropdownMenuItem<String>(
-                                    value: item.get('name'),
-                                    child: Text(item.get('name')));
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _selectedSubcategory = value!;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? 'please select a subcategory'
-                                  : null,
-                            );
-                          },
-                        ),
+                const SizedBox(height: 8),
 
-                      const SizedBox(height: 8),
+                // description
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    hintText: 'Product Description',
+                    label: Text('Product Description'),
+                  ),
+                  minLines: 2,
+                  maxLines: 12,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.none,
+                  textCapitalization: TextCapitalization.sentences,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Enter product description' : null,
+                ),
 
-                      // name
-                      TextFormField(
-                        controller: _nameController,
+                const SizedBox(height: 8),
+
+                // regular and sale price
+                Row(
+                  children: [
+                    // sale price
+                    Expanded(
+                      child: TextFormField(
+                        controller: _salePriceController,
                         decoration: const InputDecoration(
-                          hintText: 'Product Name',
-                          label: Text('Product Name'),
+                          hintText: 'Sale Price',
+                          label: Text('Sale Price'),
+                        ),
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) =>
+                            value!.isEmpty ? 'Enter price' : null,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // regular price
+                    Expanded(
+                      child: TextFormField(
+                        controller: _regularPriceController,
+                        decoration: const InputDecoration(
+                          hintText: 'Regular Price',
+                          label: Text('Regular Price'),
+                        ),
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.next,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+
+                // price, quantity, weight
+                Row(
+                  children: [
+                    // quantity
+                    Flexible(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: _quantityController,
+                        decoration: const InputDecoration(
+                          hintText: 'Quantity',
+                          label: Text('Quantity'),
+                        ),
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) =>
+                            value!.isEmpty ? 'Enter quantity' : null,
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // weight
+                    Flexible(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: _weightController,
+                        decoration: const InputDecoration(
+                          hintText: 'Weight',
+                          label: Text('Weight'),
                         ),
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
-                        textCapitalization: TextCapitalization.words,
-                        validator: (value) =>
-                            value!.isEmpty ? 'Enter product name' : null,
+                        // validator: (value) =>
+                        //     value!.isEmpty ? 'Enter weight' : null,
                       ),
+                    ),
+                  ],
+                ),
 
-                      const SizedBox(height: 8),
+                const SizedBox(height: 12),
 
-                      // description
-                      TextFormField(
-                        controller: _descriptionController,
-                        decoration: const InputDecoration(
-                          hintText: 'Product Description',
-                          label: Text('Product Description'),
-                        ),
-                        minLines: 2,
-                        maxLines: 12,
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.none,
-                        textCapitalization: TextCapitalization.sentences,
-                        validator: (value) =>
-                            value!.isEmpty ? 'Enter product description' : null,
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      // regular and sale price
-                      Row(
-                        children: [
-                          // sale price
-                          Expanded(
-                            child: TextFormField(
-                              controller: _salePriceController,
-                              decoration: const InputDecoration(
-                                hintText: 'Sale Price',
-                                label: Text('Sale Price'),
-                              ),
-                              keyboardType: TextInputType.number,
-                              textInputAction: TextInputAction.next,
-                              validator: (value) =>
-                                  value!.isEmpty ? 'Enter price' : null,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-
-                          // regular price
-                          Expanded(
-                            child: TextFormField(
-                              controller: _regularPriceController,
-                              decoration: const InputDecoration(
-                                hintText: 'Regular Price',
-                                label: Text('Regular Price'),
-                              ),
-                              keyboardType: TextInputType.number,
-                              textInputAction: TextInputAction.next,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      // price, quantity, weight
-                      Row(
-                        children: [
-                          // quantity
-                          Flexible(
-                            flex: 2,
-                            child: TextFormField(
-                              controller: _quantityController,
-                              decoration: const InputDecoration(
-                                hintText: 'Quantity',
-                                label: Text('Quantity'),
-                              ),
-                              keyboardType: TextInputType.number,
-                              textInputAction: TextInputAction.next,
-                              validator: (value) =>
-                                  value!.isEmpty ? 'Enter quantity' : null,
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          // weight
-                          Flexible(
-                            flex: 2,
-                            child: TextFormField(
-                              controller: _weightController,
-                              decoration: const InputDecoration(
-                                hintText: 'Weight',
-                                label: Text('Weight'),
-                              ),
-                              keyboardType: TextInputType.text,
-                              textInputAction: TextInputAction.next,
-                              // validator: (value) =>
-                              //     value!.isEmpty ? 'Enter weight' : null,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // images
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          addImages();
-                        },
-                        icon: const Icon(Icons.add_circle_outline_rounded),
-                        label: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Text('Add Image'),
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      _selectedFiles.isEmpty
-                          ? const Text(
-                              'No Image Selected',
-                              textAlign: TextAlign.center,
-                            )
-                          : GridView.builder(
-                              shrinkWrap: true,
-                              primary: false,
-                              itemCount: _selectedFiles.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                childAspectRatio: 1,
-                              ),
-                              itemBuilder: (context, index) => Image.file(
-                                File(_selectedFiles[index].path),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-
-                      const SizedBox(height: 8),
-
-                      // featured, sale
-                      Row(
-                        children: [
-                          // featured
-                          Expanded(
-                            child: RadioListTile<int>(
-                              title: Text('Featured'.toUpperCase()),
-                              value: 0,
-                              groupValue: _isSelected,
-                              onChanged: (value) =>
-                                  setState(() => _isSelected = 0),
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-                          // sale
-                          Expanded(
-                            child: RadioListTile<int>(
-                              title: Text('Sale'.toUpperCase()),
-                              value: 1,
-                              groupValue: _isSelected,
-                              onChanged: (value) =>
-                                  setState(() => _isSelected = 1),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // upload button
-                      ElevatedButton(
-                          onPressed: () {
-                            if (_globalKey.currentState!.validate()) {
-                              if (_selectedFiles.isNotEmpty) {
-                                //
-                                uploadToFirebase();
-                              } else {
-                                Fluttertoast.showToast(
-                                    msg: 'Please Select Image');
-                              }
-                            }
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            child: Text('Upload Product'),
-                          )),
-                    ],
+                // images
+                OutlinedButton.icon(
+                  onPressed: () {
+                    addImages();
+                  },
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                  label: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text('Add Image'),
                   ),
                 ),
-              ),
+
+                const SizedBox(height: 8),
+
+                _selectedFiles.isEmpty
+                    ? const Text(
+                        'No Image Selected',
+                        textAlign: TextAlign.center,
+                      )
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        primary: false,
+                        itemCount: _selectedFiles.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 1,
+                        ),
+                        itemBuilder: (context, index) => Image.file(
+                          File(_selectedFiles[index].path),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+
+                const SizedBox(height: 8),
+
+                // featured, sale
+                Row(
+                  children: [
+                    // featured
+                    Expanded(
+                      child: RadioListTile<int>(
+                        title: Text('Featured'.toUpperCase()),
+                        value: 0,
+                        groupValue: _isSelected,
+                        onChanged: (value) => setState(() => _isSelected = 0),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+                    // sale
+                    Expanded(
+                      child: RadioListTile<int>(
+                        title: Text('Sale'.toUpperCase()),
+                        value: 1,
+                        groupValue: _isSelected,
+                        onChanged: (value) => setState(() => _isSelected = 1),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // upload button
+                SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        if (_globalKey.currentState!.validate()) {
+                          if (_selectedFiles.isNotEmpty) {
+                            //
+                            await uploadToFirebase();
+                            // Navigator.pop(context);
+                          } else {
+                            Fluttertoast.showToast(msg: 'Please Select Image');
+                          }
+                        }
+                      },
+                      child: const Text('Upload Product')),
+                ),
+              ],
             ),
+          ),
+        ),
+      ),
     );
+  }
+
+  // uploadImages
+  Future uploadToFirebase() async {
+    //
+    showLoading();
+
+    //
+    var imageList = [];
+    //
+    for (var img in _selectedFiles) {
+      Reference ref = UserRepo.refStorageProducts.child(uid).child(img.name);
+
+      //
+      await ref.putFile(File(img.path)).whenComplete(() async {
+        await ref.getDownloadURL().then((value) {
+          imageList.add(value);
+        });
+      });
+    }
+
+    //
+    // _uploadItem = 0;
+    uploadToFirestore(imageList);
+  }
+
+  // uploadToFirestore
+  uploadToFirestore(imageList) async {
+    //
+    ProductModel product = ProductModel(
+      category: _selectedCategory.toString(),
+      subcategory: _selectedSubcategory.toString(),
+      id: uid,
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+      salePrice: int.parse(_salePriceController.text.trim()),
+      regularPrice: _regularPriceController.text != ''
+          ? int.parse(_regularPriceController.text.trim())
+          : 0,
+      stockQuantity: int.parse(_quantityController.text.trim()),
+      featured: _isSelected == 0 ? true : false,
+      images: imageList,
+      searchKey: _nameController.text[0].toUpperCase(),
+      weight: _weightController.text.trim(),
+    );
+
+    //addProduct
+    await ProductProviderAdmin.addProduct(product: product, uid: uid)
+        .then((value) {
+      Navigator.pop(context);
+    });
   }
 
   // add images
@@ -375,84 +419,37 @@ class _AddProductState extends State<AddProduct> {
   }
 
   //loading
-  Widget showLoading() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: LinearProgressIndicator(
-            minHeight: 16,
-            valueColor: const AlwaysStoppedAnimation(Colors.green),
-            value: _uploadItem / (_selectedFiles.length),
-          ),
-        ),
-        Text(
-          'Uploading: $_uploadItem/${_selectedFiles.length}',
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
+  showLoading() {
+    return showDialog(
+        context: context,
+        builder: (context) => Dialog(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text('Uploading '),
 
-  // uploadImages
-  Future uploadToFirebase() async {
-    // setState(() {
-    //   _isUploadLoading = true;
-    // });
+                    const SizedBox(height: 10),
 
-    var imageList = [];
-    //
-    for (var img in _selectedFiles) {
-      Reference ref = MyRepo.refStorageProducts.child(uid).child(img.name);
-
-      //
-      await ref.putFile(File(img.path)).whenComplete(() async {
-        await ref.getDownloadURL().then((value) {
-          imageList.add(value);
-          setState(() {
-            _uploadItem = imageList.length;
-          });
-        });
-      });
-    }
-
-    //
-    // _uploadItem = 0;
-    uploadToFirestore(imageList);
-  }
-
-  // uploadToFirestore
-  uploadToFirestore(imageList) async {
-    ProductModel product = ProductModel(
-      category: _selectedCategory.toString(),
-      subcategory: _selectedSubcategory.toString(),
-      id: uid,
-      name: _nameController.text.trim(),
-      description: _descriptionController.text.trim(),
-      salePrice: int.parse(_salePriceController.text.trim()),
-      regularPrice: _regularPriceController.text != ''
-          ? int.parse(_regularPriceController.text.trim())
-          : 0,
-      stockQuantity: int.parse(_quantityController.text.trim()),
-      featured: _isSelected == 0 ? true : false,
-      images: imageList,
-      searchKey: _nameController.text[0].toUpperCase(),
-      weight: _weightController.text.trim(),
-    );
-
-    //addProduct
-    await ProductProviderAdmin.addProduct(product: product, uid: uid)
-        .then((value) {
-      // setState(() => _isUploadLoading = false);
-      // Navigator.pop(context);
-    });
+                    //
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: const LinearProgressIndicator(
+                        minHeight: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ));
   }
 
   // get categories
   getCategory() {
-    MyRepo.refCategories
+    UserRepo.refCategories
         .orderBy('name')
         .get()
         .then((QuerySnapshot querySnapshot) {

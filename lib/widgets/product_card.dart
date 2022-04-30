@@ -69,8 +69,9 @@ class _ProductCardState extends State<ProductCard> {
 
                   // add to favorite
                   StreamBuilder<DocumentSnapshot>(
-                      stream:
-                          MyRepo.refWishlist.doc(widget.product.id).snapshots(),
+                      stream: UserRepo.refWishlist
+                          .doc(widget.product.id)
+                          .snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return Container(
@@ -253,7 +254,7 @@ class _ProductCardState extends State<ProductCard> {
                       // add to cart
                       if (widget.product.stockQuantity != 0)
                         StreamBuilder<DocumentSnapshot>(
-                            stream: MyRepo.refCart
+                            stream: UserRepo.refCart
                                 .doc(widget.product.id)
                                 .snapshots(),
                             builder: (context, snapshot) {

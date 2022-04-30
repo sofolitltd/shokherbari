@@ -9,7 +9,7 @@ class ProductProviderAdmin {
   static addProduct(
       {required ProductModel product, required String uid}) async {
     //
-    await MyRepo.refProducts.doc(uid).set(product.toJson()).then((value) {
+    await UserRepo.refProducts.doc(uid).set(product.toJson()).then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Upload product successfully');
     });
@@ -19,7 +19,7 @@ class ProductProviderAdmin {
   static editProduct(
       {required ProductModel product, required String uid}) async {
     //
-    await MyRepo.refProducts.doc(uid).update(product.toJson()).then((value) {
+    await UserRepo.refProducts.doc(uid).update(product.toJson()).then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Update product successfully');
     });
@@ -27,7 +27,7 @@ class ProductProviderAdmin {
 
   //removeProduct
   static removeProduct({required String id}) {
-    MyRepo.refProducts.doc(id).delete().then(
+    UserRepo.refProducts.doc(id).delete().then(
         (value) => Fluttertoast.showToast(msg: 'Delete product successfully'));
   }
 

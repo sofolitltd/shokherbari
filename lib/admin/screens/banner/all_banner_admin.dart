@@ -26,7 +26,7 @@ class AllBannerAdmin extends StatelessWidget {
 
       //
       body: StreamBuilder<QuerySnapshot>(
-          stream: MyRepo.refBanner.snapshots(),
+          stream: UserRepo.refBanner.snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return const Center(child: Text('Something wrong'));

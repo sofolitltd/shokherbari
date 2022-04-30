@@ -13,7 +13,7 @@ class CategoryProvider {
     String id = const Uuid().v1();
 
     //
-    MyRepo.refCategories.doc(id).set({
+    UserRepo.refCategories.doc(id).set({
       'name': categoryName,
       'image': imageUrl,
     }).then((value) {
@@ -23,7 +23,7 @@ class CategoryProvider {
 
   //removeFromCategory
   static removeFromCategory({required String id}) async {
-    await MyRepo.refCategories.doc(id).delete().then((value) {
+    await UserRepo.refCategories.doc(id).delete().then((value) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Remove from category');
     });
